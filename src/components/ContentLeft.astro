@@ -1,0 +1,22 @@
+---
+import LogoGraphic from "@images/logo.svg";
+import Buttons from "@components/Buttons.astro";
+---
+
+<div
+  class="order-2 border-yellow max-md:border-t md:self-auto md:order-1 md:border-r"
+>
+  <div
+    class="relative text-center flex flex-col justify-center gap-5 px-5 max-md:p-5 max-md:h-full md:w-full md:h-screen"
+  >
+    <a
+      class="block text-yellow mx-auto w-20 h-20 hover:text-gray transition-colors"
+      href="/"
+      aria-label="Go to home page"
+    >
+      <LogoGraphic class="w-full h-full" />
+    </a>
+    <h1 class="text-white text-4xl">Airports I've Been To</h1>
+    <Buttons />
+  </div>
+</div>
