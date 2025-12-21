@@ -7,9 +7,9 @@
     "jsx": "react-jsx",
     "paths": {
       "@styles/*": ["src/styles/*"],
+      "@layouts/*": ["src/layouts/*"],
       "@images/*": ["src/assets/images/*"],
-      "@components/*": ["src/components/*"],
-      "@layouts/*": ["src/layouts/*"]
+      "@components/*": ["src/components/*"]
     }
   }
 }
