@@ -1,4 +1,8 @@
 ---
+import { airports, mapCenter, mapStyles } from "../data/airports";
+import { trips as tripData } from "../data/trips";
+import type {} from "../types/google-maps";
+
 const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
 ---
 
@@ -11,476 +15,164 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
 ></script>
 
 <script>
-  // Type declarations for Google Maps API
-  declare global {
-    interface Window {
-      initMap: () => void;
-    }
+  import { airports, mapCenter, mapStyles } from "../data/airports";
+  import { trips as tripData } from "../data/trips";
 
-    namespace google {
-      namespace maps {
-        class Map {
-          constructor(mapDiv: HTMLElement, opts?: any);
-        }
-        class Marker {
-          constructor(opts?: any);
-          setOptions(options: any): void;
-          getIcon(): any;
-        }
-        class InfoWindow {
-          constructor(opts?: any);
-          setOptions(options: any): void;
-          open(map: Map, anchor?: Marker): void;
-          close(): void;
-        }
-        class LatLng {
-          constructor(lat: number, lng: number);
-        }
-        class LatLngBounds {
-          constructor();
-          extend(point: LatLng): void;
-        }
-        class Polyline {
-          constructor(opts: any);
-        }
-        class Size {
-          constructor(width: number, height: number);
-        }
-        class Point {
-          constructor(x: number, y: number);
-        }
-        namespace event {
-          function addListener(
-            instance: any,
-            eventName: string,
-            handler: Function
-          ): void;
-          function trigger(instance: any, eventName: string): void;
-        }
-        interface LatLngLiteral {
-          lat: number;
-          lng: number;
-        }
-        interface MapTypeStyle {
-          stylers?: any[];
-          featureType?: string;
-          elementType?: string;
-        }
-      }
-    }
+  const ICON_URL = "https://jacobproffer.github.io/airports/img/marker.svg";
+
+  interface MarkerOptions {
+    position: google.maps.LatLng;
+    sidebarItem?: string;
+    content?: string;
+    sidebarItemType?: string;
+    sidebarItemClassName?: string;
+  }
+
+  interface SidebarItemInstance {
+    button: HTMLElement;
+    div: HTMLElement | null;
+    addIn(block: string | HTMLElement): void;
+    remove(): boolean;
   }
 
   function initializeMap(): void {
-    let map: google.maps.Map;
-    let center: google.maps.LatLngLiteral;
-    let infoWindow: google.maps.InfoWindow;
-    const markerCollection: google.maps.Marker[] = [];
-    let markerBounds: google.maps.LatLngBounds;
-    let japanTrip2019: google.maps.LatLng[];
-    let norwayTrip2018: google.maps.LatLng[];
-    let icelandTrip2018: google.maps.LatLng[];
-    let japanTrip2017: google.maps.LatLng[];
-    let texasTrip2017: google.maps.LatLng[];
-    let newYorkTrip2017: google.maps.LatLng[];
-    let bostonTrip2016: google.maps.LatLng[];
-    let newYorkTrip2014: google.maps.LatLng[];
-    let newYorkTrip2012: google.maps.LatLng[];
-    let hersheyTrip2014: google.maps.LatLng[];
-    let texasTrip2003: google.maps.LatLng[];
-    let trips: google.maps.LatLng[][];
-    const style: google.maps.MapTypeStyle[] = [
-      { stylers: [{ visibility: "off" }] },
-      {
-        featureType: "water",
-        stylers: [{ visibility: "on" }, { color: "#2D2D2D" }],
-      },
-      {
-        featureType: "landscape",
-        stylers: [{ visibility: "on" }, { color: "#423d27" }],
-      },
-      {
-        featureType: "administrative",
-        elementType: "geometry.stroke",
-        stylers: [{ visibility: "on" }, { color: "#2D2D2D" }, { weight: 1 }],
-      },
-    ];
-    const markers: [number, number, string, string][] = [
-      [32.4119, -99.68, "<h2>Abilene Regional Airport</h2>", "ABI"],
-      [52.3105, 4.7683, "<h2>Amsterdam Airport Schiphol</h2>", "AMS"],
-      [60.2918, 5.222, "<h2>Bergen Airport, Flesland</h2>", "BGO"],
-      [42.3656, -71.0096, "<h2>Logan International Airport</h2>", "BOS"],
-      [
-        32.8998,
-        -97.0403,
-        "<h2>Dallas/Forth Worth International Airport</h2>",
-        "DFT",
-      ],
-      [42.2162, -83.3554, "<h2>Detroit Metropolitan Airport</h2>", "DTW"],
-      [45.7202, -87.092, "<h2>Delta County Airport</h2>", "ESC"],
-      [
-        44.4834,
-        -88.1344,
-        "<h2>Austin Straubel International Airport</h2>",
-        "GRB",
-      ],
-      [
-        40.6413,
-        -73.7781,
-        "<h2>John F. Kennedy International Airport</h2>",
-        "JFK",
-      ],
-      [63.987, -22.6192, "<h2>Keflavik International Airport</h2>", "KEF"],
-      [40.7769, -73.874, "<h2>LaGuardia Airport</h2>", "LGA"],
-      [40.1942, -76.7577, "<h2>Harrisburg International Airport</h2>", "MDT"],
-      [
-        42.9476,
-        -87.8966,
-        "<h2>General Mitchell International Airport</h2>",
-        "MKE",
-      ],
-      [46.3497, -87.3873, "<h2>Sawyer International Airport</h2>", "MQT"],
-      [
-        44.8848,
-        -93.2223,
-        "<h2>Minneapolis–Saint Paul International Airport</h2>",
-        "MSP",
-      ],
-      [35.772, 140.3929, "<h2>Narita International Airport</h2>", "NRT"],
-      [41.9742, -87.9073, "<h2>OHare International Airport</h2>", "ORD"],
-      [34.7863, 135.4378, "<h2>Osaka International Airport</h2>", "ITM"],
-    ];
-    const focal: google.maps.LatLngLiteral = { lat: 46.3497, lng: -87.3873 };
-    const iconBase: string =
-      "https://jacobproffer.github.io/airports/img/marker.svg";
-
-    function closeAllInfoWindows(): void {
-      for (let i = 0; i < markerCollection.length; i++) {
-        infoWindow.close();
-      }
-    }
-
-    center = focal;
     const mapElement = document.getElementById("map");
     if (!mapElement) {
       console.error("Map element not found");
       return;
     }
-    map = new google.maps.Map(mapElement, {
+
+    const map = new google.maps.Map(mapElement, {
       zoom: 3,
-      center: center,
-      styles: style,
+      center: mapCenter,
+      styles: mapStyles,
     });
 
-    markerBounds = new google.maps.LatLngBounds();
-    infoWindow = new google.maps.InfoWindow();
+    const markerBounds = new google.maps.LatLngBounds();
+    const infoWindow = new google.maps.InfoWindow();
+    const markerCollection: google.maps.Marker[] = [];
 
-    // Listen for all clicks on the document
-    document.addEventListener("click", function (event) {
+    // Close info windows when clicking outside the map or sidebar
+    document.addEventListener("click", (event) => {
       if (
         event.target &&
         event.target instanceof Element &&
         !event.target.closest("#map") &&
         !event.target.closest(".sidebar-item")
       ) {
-        closeAllInfoWindows();
+        infoWindow.close();
       }
     });
-    function makeMarker(options: {
-      position: google.maps.LatLng;
-      sidebarItem?: string;
-      content?: string;
-      sidebarItemType?: string;
-      sidebarItemClassName?: string;
-    }): google.maps.Marker {
-      const pushPin = new google.maps.Marker({
-        map: map,
+
+    // Close info window when clicking on the map
+    google.maps.event.addListener(map, "click", () => {
+      infoWindow.close();
+    });
+
+    // Create sidebar items for markers
+    class SidebarItem implements SidebarItemInstance {
+      button: HTMLElement;
+      div: HTMLElement | null = null;
+
+      constructor(
+        marker: google.maps.Marker,
+        opts: {
+          sidebarItem?: string;
+          sidebarItemType?: string;
+          sidebarItemClassName?: string;
+        }
+      ) {
+        const tag = opts.sidebarItemType || "button";
+        const row = document.createElement(tag);
+        row.innerHTML = opts.sidebarItem || "";
+        row.className = opts.sidebarItemClassName || "sidebar-item";
+        row.onclick = () => google.maps.event.trigger(marker, "click");
+        row.onmouseover = () => google.maps.event.trigger(marker, "mouseover");
+        row.onmouseout = () => google.maps.event.trigger(marker, "mouseout");
+        this.button = row;
+      }
+
+      addIn(block: string | HTMLElement): void {
+        if (block && typeof block !== "string" && block.nodeType === 1) {
+          this.div = block as HTMLElement;
+        } else {
+          this.div =
+            document.getElementById(block as string) ||
+            document.getElementById("sidebar") ||
+            document.getElementsByTagName("body")[0];
+        }
+        this.div.appendChild(this.button);
+      }
+
+      remove(): boolean {
+        if (!this.div) return false;
+        this.div.removeChild(this.button);
+        return true;
+      }
+    }
+
+    // Create markers for each airport
+    function createMarker(options: MarkerOptions): google.maps.Marker {
+      const marker = new google.maps.Marker({
+        map,
         optimized: false,
         icon: {
-          url: iconBase,
+          url: ICON_URL,
           scaledSize: new google.maps.Size(30, 30),
           origin: new google.maps.Point(0, 0),
           anchor: new google.maps.Point(15, 15),
         },
+        ...options,
       });
-      pushPin.setOptions(options);
-      google.maps.event.addListener(pushPin, "click", function () {
+
+      google.maps.event.addListener(marker, "click", () => {
         infoWindow.setOptions(options);
-        infoWindow.open(map, pushPin);
-        if ((pushPin as any).sidebarButton) {
-          (pushPin as any).sidebarButton.button.focus();
+        infoWindow.open(map, marker);
+        const sidebarButton = (marker as any)
+          .sidebarButton as SidebarItemInstance;
+        if (sidebarButton) {
+          sidebarButton.button.focus();
         }
       });
+
       if (options.sidebarItem) {
-        (pushPin as any).sidebarButton = new (SidebarItem as any)(
-          pushPin,
-          options
-        );
-        (pushPin as any).sidebarButton.addIn("sidebar");
+        (marker as any).sidebarButton = new SidebarItem(marker, options);
+        ((marker as any).sidebarButton as SidebarItemInstance).addIn("sidebar");
       }
+
       markerBounds.extend(options.position);
-      markerCollection.push(pushPin);
-      return pushPin;
+      markerCollection.push(marker);
+      return marker;
     }
 
-    google.maps.event.addListener(map, "click", function () {
-      infoWindow.close();
+    // Add all airport markers
+    airports.forEach(([lat, lng, content, code]) => {
+      createMarker({
+        position: new google.maps.LatLng(lat, lng),
+        sidebarItem: code,
+        content,
+      });
     });
 
-    function SidebarItem(
-      this: any,
-      marker: google.maps.Marker,
-      opts: {
-        sidebarItem?: string;
-        sidebarItemType?: string;
-        sidebarItemClassName?: string;
-      }
-    ) {
-      const tag = opts.sidebarItemType || "button";
-      const row = document.createElement(tag);
-      row.innerHTML = opts.sidebarItem || "";
-      row.className = opts.sidebarItemClassName || "sidebar-item";
-      row.onclick = function () {
-        google.maps.event.trigger(marker, "click");
-      };
-      row.onmouseover = function () {
-        google.maps.event.trigger(marker, "mouseover");
-      };
-      row.onmouseout = function () {
-        google.maps.event.trigger(marker, "mouseout");
-      };
-      this.button = row;
-    }
-
-    // Extend the SidebarItem prototype with proper types
-    (SidebarItem.prototype as any).button = null as unknown as HTMLElement;
-    (SidebarItem.prototype as any).div = null as unknown as HTMLElement;
-
-    (SidebarItem.prototype as any).addIn = function (
-      block: string | HTMLElement
-    ): void {
-      if (block && typeof block !== "string" && block.nodeType === 1) {
-        this.div = block;
-      } else {
-        this.div =
-          document.getElementById(block as string) ||
-          document.getElementById("sidebar") ||
-          document.getElementsByTagName("body")[0];
-      }
-      this.div.appendChild(this.button);
-    };
-
-    (SidebarItem.prototype as any).remove = function (): boolean {
-      if (!this.div) {
-        return false;
-      }
-      this.div.removeChild(this.button);
-      return true;
-    };
-
-    for (let i = 0; i < markers.length; i += 1) {
-      makeMarker({
-        position: new google.maps.LatLng(markers[i][0], markers[i][1]),
-        sidebarItem: markers[i][3],
-        content: markers[i][2],
-      });
-    }
-
-    // Coordinates for my 2019 Japan trip
-    japanTrip2019 = [
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-      // Chicago O'Hare Airport (ORD)
-      new google.maps.LatLng(41.9742, -87.9073),
-      // Narita International Airport (NRT)
-      new google.maps.LatLng(35.772, 140.3929),
-      // Osaka International Airport (ITM)
-      new google.maps.LatLng(34.7863, 135.4378),
-      // Narita International Airport (NRT)
-      new google.maps.LatLng(35.772, 140.3929),
-      // Chicago O'Hare Airport (ORD)
-      new google.maps.LatLng(41.9742, -87.9073),
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-    ];
-
-    // Coordinates for my 2018 Norway trip
-    norwayTrip2018 = [
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-      // Detroit Metropolitan Airport (DTW)
-      new google.maps.LatLng(42.2162, -83.3554),
-      // Amsterdam Airport Schiphol
-      new google.maps.LatLng(52.3105, 4.7683),
-      // Bergen Airport, Flesland (BGO)
-      new google.maps.LatLng(60.2918, 5.222),
-      // Amsterdam Airport Schiphol
-      new google.maps.LatLng(52.3105, 4.7683),
-      // Minneapolis–Saint Paul International Airport
-      new google.maps.LatLng(44.8848, -93.2223),
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-    ];
-
-    // Coordinates for my 2018 Iceland trip
-    icelandTrip2018 = [
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-      // Detroit Metropolitan Airport (DTW)
-      new google.maps.LatLng(42.2162, -83.3554),
-      // John F. Kennedy Airport (JFK)
-      new google.maps.LatLng(40.6413, -73.7781),
-      // Keflavik international Airport (KEF)
-      new google.maps.LatLng(63.987, -22.6192),
-      // John F. Kennedy Airport (JFK)
-      new google.maps.LatLng(40.6413, -73.7781),
-      // Minneapolis–Saint Paul International Airport
-      new google.maps.LatLng(44.8848, -93.2223),
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-    ];
-
-    // Coordinates for my 2017 Japan trip
-    japanTrip2017 = [
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-      // Chicago O'Hare Airport (ORD)
-      new google.maps.LatLng(41.9742, -87.9073),
-      // Narita International Airport (NRT)
-      new google.maps.LatLng(35.772, 140.3929),
-      // Chicago O'Hare Airport (ORD)
-      new google.maps.LatLng(41.9742, -87.9073),
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-    ];
-
-    // Coordinates for my 2017 Texas trip
-    texasTrip2017 = [
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-      // Detroit Metropolitan Airport (DTW)
-      new google.maps.LatLng(42.2162, -83.3554),
-      // Dallas Fort Worth (DFT)
-      new google.maps.LatLng(32.8998, -97.0403),
-      // Detroit Metropolitan Airport (DTW)
-      new google.maps.LatLng(42.2162, -83.3554),
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-    ];
-
-    // Coordinates for my 2017 NYC trip
-    newYorkTrip2017 = [
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-      // Chicago O'Hare Airport (ORD)
-      new google.maps.LatLng(41.9742, -87.9073),
-      // John F. Kennedy Airport (JFK)
-      new google.maps.LatLng(40.6413, -73.7781),
-      // Chicago O'Hare Airport (ORD)
-      new google.maps.LatLng(41.9742, -87.9073),
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-    ];
-
-    // Coordinates for my 2016 Boston trip
-    bostonTrip2016 = [
-      // General Mitchell International Airport
-      new google.maps.LatLng(42.9476, -87.8966),
-      // Logal International Airport (BOS)
-      new google.maps.LatLng(42.3656, -71.0096),
-      // General Mitchell International Airport
-      new google.maps.LatLng(42.9476, -87.8966),
-    ];
-
-    // Coordinates for my 2014 NYC trip
-    newYorkTrip2014 = [
-      // Austin Straubel International Airport (GRB)
-      new google.maps.LatLng(44.4834, -88.1344),
-      // Chicago O'Hare Airport (ORD)
-      new google.maps.LatLng(41.9742, -87.9073),
-      // LaGuardia Airport (LGA)
-      new google.maps.LatLng(40.7769, -73.874),
-      // Chicago O'Hare Airport (ORD)
-      new google.maps.LatLng(41.9742, -87.9073),
-      // Austin Straubel International Airport (GRB)
-      new google.maps.LatLng(44.4834, -88.1344),
-    ];
-
-    // Coordinates for my 2014 Hershey trip
-    hersheyTrip2014 = [
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-      // Detroit Metropolitan Airport (DTW)
-      new google.maps.LatLng(42.2162, -83.3554),
-      // Harrisburg International Airport
-      new google.maps.LatLng(40.1942, -76.7577),
-      // Detroit Metropolitan Airport (DTW)
-      new google.maps.LatLng(42.2162, -83.3554),
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-    ];
-
-    // Coordinates for my 2012 NYC trip
-    newYorkTrip2012 = [
-      // Austin Straubel International Airport (GRB)
-      new google.maps.LatLng(44.4834, -88.1344),
-      // Chicago O'Hare Airport (ORD)
-      new google.maps.LatLng(41.9742, -87.9073),
-      // LaGuardia Airport (LGA)
-      new google.maps.LatLng(40.7769, -73.874),
-      // Chicago O'Hare Airport (ORD)
-      new google.maps.LatLng(41.9742, -87.9073),
-      // Austin Straubel International Airport (GRB)
-      new google.maps.LatLng(44.4834, -88.1344),
-    ];
-
-    texasTrip2003 = [
-      // K.I. Sawyer Airport (MQT)
-      new google.maps.LatLng(46.3497, -87.3873),
-      // Chicago O'Hare Airport (ORD)
-      new google.maps.LatLng(41.9742, -87.9073),
-      // Dallas Fort Worth (DFT)
-      new google.maps.LatLng(32.8998, -97.0403),
-      // Abiline Regional Airport
-      new google.maps.LatLng(32.4119, -99.68),
-      // Dallas Fort Worth (DFT)
-      new google.maps.LatLng(32.8998, -97.0403),
-      // Chicago O'Hare Airport (ORD)
-      new google.maps.LatLng(41.9742, -87.9073),
-      // Delta County Airport (ESC)
-      new google.maps.LatLng(45.7202, -87.092),
-    ];
-
-    // trips array
-    trips = [
-      japanTrip2019,
-      norwayTrip2018,
-      icelandTrip2018,
-      japanTrip2017,
-      texasTrip2017,
-      newYorkTrip2017,
-      bostonTrip2016,
-      newYorkTrip2014,
-      hersheyTrip2014,
-      newYorkTrip2012,
-      texasTrip2003,
-    ];
-
-    // function to generate line between coordinates
-    function generateLine(params: google.maps.LatLng[]): void {
+    // Draw trip routes
+    function drawTripLine(coordinates: { lat: number; lng: number }[]): void {
+      const path = coordinates.map(
+        (coord) => new google.maps.LatLng(coord.lat, coord.lng)
+      );
       new google.maps.Polyline({
-        path: params,
+        path,
         strokeColor: "#677279",
         strokeOpacity: 0.2,
         strokeWeight: 3,
         geodesic: true,
-        map: map,
+        map,
       });
     }
 
-    // loop over trips array and call generateLine
-    for (let i = 0; i < trips.length; i++) {
-      generateLine(trips[i]);
-    }
+    // Draw all trip routes
+    Object.values(tripData).forEach((trip) => {
+      drawTripLine(trip);
+    });
   }
 
   // Make initMap globally available for Google Maps callback
@@ -488,7 +180,7 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
 
   // Also ensure it runs when DOM is loaded if Google Maps is already available
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", () => {
       if (typeof (window as any).google !== "undefined") {
         initializeMap();
       }
