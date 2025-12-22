@@ -160,7 +160,12 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
     }
 
     center = focal;
-    map = new google.maps.Map(document.getElementById("map"), {
+    const mapElement = document.getElementById("map");
+    if (!mapElement) {
+      console.error("Map element not found");
+      return;
+    }
+    map = new google.maps.Map(mapElement, {
       zoom: 3,
       center: center,
       styles: style,
@@ -172,6 +177,8 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
     // Listen for all clicks on the document
     document.addEventListener("click", function (event) {
       if (
+        event.target &&
+        event.target instanceof Element &&
         !event.target.closest("#map") &&
         !event.target.closest(".sidebar-item")
       ) {
@@ -199,12 +206,15 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
       google.maps.event.addListener(pushPin, "click", function () {
         infoWindow.setOptions(options);
         infoWindow.open(map, pushPin);
-        if (this.sidebarButton) {
-          this.sidebarButton.button.focus();
+        if ((pushPin as any).sidebarButton) {
+          (pushPin as any).sidebarButton.button.focus();
         }
       });
       if (options.sidebarItem) {
-        (pushPin as any).sidebarButton = new SidebarItem(pushPin, options);
+        (pushPin as any).sidebarButton = new (SidebarItem as any)(
+          pushPin,
+          options
+        );
         (pushPin as any).sidebarButton.addIn("sidebar");
       }
       markerBounds.extend(options.position);
@@ -217,6 +227,7 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
     });
 
     function SidebarItem(
+      this: any,
       marker: google.maps.Marker,
       opts: {
         sidebarItem?: string;
@@ -226,7 +237,7 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
     ) {
       const tag = opts.sidebarItemType || "button";
       const row = document.createElement(tag);
-      row.innerHTML = opts.sidebarItem;
+      row.innerHTML = opts.sidebarItem || "";
       row.className = opts.sidebarItemClassName || "sidebar-item";
       row.onclick = function () {
         google.maps.event.trigger(marker, "click");
@@ -241,17 +252,17 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
     }
 
     // Extend the SidebarItem prototype with proper types
-    (SidebarItem.prototype as any).button = null as HTMLElement;
-    (SidebarItem.prototype as any).div = null as HTMLElement;
+    (SidebarItem.prototype as any).button = null as unknown as HTMLElement;
+    (SidebarItem.prototype as any).div = null as unknown as HTMLElement;
 
     (SidebarItem.prototype as any).addIn = function (
       block: string | HTMLElement
     ): void {
-      if (block && block.nodeType === 1) {
+      if (block && typeof block !== "string" && block.nodeType === 1) {
         this.div = block;
       } else {
         this.div =
-          document.getElementById(block) ||
+          document.getElementById(block as string) ||
           document.getElementById("sidebar") ||
           document.getElementsByTagName("body")[0];
       }
