@@ -1,9 +1,13 @@
+---
+const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
+---
+
 <div class="w-full h-1/2 md:h-screen" id="map"></div>
 
 <script
   async
   defer
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9YgNaesgqL6R6s1qWjJsOjJPyUzQEyTU&callback=initMap"
+  src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`}
 ></script>
 
 <script>
