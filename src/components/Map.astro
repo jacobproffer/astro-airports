@@ -28,6 +28,7 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
 
   interface SidebarItemInstance {
     button: HTMLElement;
+    listItem: HTMLElement;
     div: HTMLElement | null;
     addIn(block: string | HTMLElement): void;
     remove(): boolean;
@@ -70,6 +71,7 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
     // Create sidebar items for markers
     class SidebarItem implements SidebarItemInstance {
       button: HTMLElement;
+      listItem: HTMLElement;
       div: HTMLElement | null = null;
 
       constructor(
@@ -80,14 +82,24 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
           sidebarItemClassName?: string;
         }
       ) {
+        // Create list item wrapper
+        this.listItem = document.createElement("li");
+
+        // Create button element
         const tag = opts.sidebarItemType || "button";
-        const row = document.createElement(tag);
-        row.innerHTML = opts.sidebarItem || "";
-        row.className = opts.sidebarItemClassName || "sidebar-item";
-        row.onclick = () => google.maps.event.trigger(marker, "click");
-        row.onmouseover = () => google.maps.event.trigger(marker, "mouseover");
-        row.onmouseout = () => google.maps.event.trigger(marker, "mouseout");
-        this.button = row;
+        const button = document.createElement(tag);
+        button.innerHTML = opts.sidebarItem || "";
+        button.className =
+          opts.sidebarItemClassName ||
+          "py-2 px-3 bg-black border border-yellow cursor-pointer transition-colors duration-200 sidebar-item w-full text-left text-white hover:bg-yellow hover:text-black focus:border-dashed";
+        button.onclick = () => google.maps.event.trigger(marker, "click");
+        button.onmouseover = () =>
+          google.maps.event.trigger(marker, "mouseover");
+        button.onmouseout = () => google.maps.event.trigger(marker, "mouseout");
+
+        // Append button to list item
+        this.listItem.appendChild(button);
+        this.button = button;
       }
 
       addIn(block: string | HTMLElement): void {
@@ -99,12 +111,12 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
             document.getElementById("sidebar") ||
             document.getElementsByTagName("body")[0];
         }
-        this.div.appendChild(this.button);
+        this.div.appendChild(this.listItem);
       }
 
       remove(): boolean {
         if (!this.div) return false;
-        this.div.removeChild(this.button);
+        this.div.removeChild(this.listItem);
         return true;
       }
     }
