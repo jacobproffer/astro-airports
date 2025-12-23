@@ -27,6 +27,7 @@ export const airports: Airport[] = [
     "MSP",
   ],
   [35.772, 140.3929, "<h2>Narita International Airport</h2>", "NRT"],
+  [42.7752, 141.6923, "<h2>New Chitose Airport</h2>", "CTS"],
   [41.9742, -87.9073, "<h2>OHare International Airport</h2>", "ORD"],
   [34.7863, 135.4378, "<h2>Osaka International Airport</h2>", "ITM"],
 ];

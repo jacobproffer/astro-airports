@@ -4,6 +4,16 @@ export interface TripCoordinate {
 }
 
 export const trips = {
+  japanTrip2025: [
+    { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
+    { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
+    { lat: 35.772, lng: 140.3929 }, // Narita International Airport (NRT)
+    { lat: 42.7752, lng: 141.6923 }, // New Chitose Airport (CTS)
+    { lat: 35.772, lng: 140.3929 }, // Narita International Airport (NRT)
+    { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
+    { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
+  ],
+
   japanTrip2019: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
