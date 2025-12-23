@@ -17,7 +17,16 @@ export const airports: Airport[] = [
   [40.6413, -73.7781, "<h2>John F. Kennedy International Airport</h2>", "JFK"],
   [63.987, -22.6192, "<h2>Keflavik International Airport</h2>", "KEF"],
   [40.7769, -73.874, "<h2>LaGuardia Airport</h2>", "LGA"],
+  [51.47, -0.4543, "<h2>Heathrow Airport</h2>", "LHR"],
+  [
+    44.5713,
+    26.0853,
+    "<h2>Bucharest Henri Coandă International Airport</h2>",
+    "OTP",
+  ],
+  [49.0097, 2.5479, "<h2>Paris Charles de Gaulle Airport</h2>", "CDG"],
   [40.1942, -76.7577, "<h2>Harrisburg International Airport</h2>", "MDT"],
+  [35.5494, 139.7798, "<h2>Haneda Airport</h2>", "HND"],
   [42.9476, -87.8966, "<h2>General Mitchell International Airport</h2>", "MKE"],
   [46.3497, -87.3873, "<h2>Sawyer International Airport</h2>", "MQT"],
   [
