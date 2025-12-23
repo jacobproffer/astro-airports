@@ -91,7 +91,7 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
         button.innerHTML = opts.sidebarItem || "";
         button.className =
           opts.sidebarItemClassName ||
-          "py-2 px-3 bg-black border border-yellow cursor-pointer transition-colors duration-200 sidebar-item w-full text-left text-white hover:bg-yellow hover:text-black focus:border-dashed";
+          "py-2 px-3 bg-black border border-yellow cursor-pointer transition-colors duration-200 sidebar-item w-full text-left text-white hover:bg-yellow hover:text-black focus:outline-dashed focus:outline-2 focus:outline-offset-2 focus:outline-yellow";
         button.onclick = () => google.maps.event.trigger(marker, "click");
         button.onmouseover = () =>
           google.maps.event.trigger(marker, "mouseover");
