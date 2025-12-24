@@ -1,6 +1,6 @@
 export type Airport = [number, number, string, string];
 
-export const airports: Airport[] = [
+const airportsData: Airport[] = [
   [32.4119, -99.68, "<h2>Abilene Regional Airport</h2>", "ABI"],
   [52.3105, 4.7683, "<h2>Amsterdam Airport Schiphol</h2>", "AMS"],
   [60.2918, 5.222, "<h2>Bergen Airport, Flesland</h2>", "BGO"],
@@ -47,6 +47,8 @@ export const airports: Airport[] = [
   ],
   [32.1161, -110.941, "<h2>Tucson International Airport</h2>", "TUS"],
 ];
+
+export const airports = airportsData.sort((a, b) => a[3].localeCompare(b[3]));
 
 export const mapCenter = { lat: 46.3497, lng: -87.3873 };
 
