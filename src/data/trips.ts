@@ -30,10 +30,26 @@ export const trips = {
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
 
+  arizonaTrip2023: [
+    { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
+    { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
+    { lat: 32.1161, lng: -110.941 }, // Tucson International Airport (TUS)
+    { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
+    { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
+  ],
+
   japanTrip2023: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 35.5494, lng: 139.7798 }, // Haneda Airport (HND)
+    { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
+    { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
+  ],
+
+  washingtonTrip2023: [
+    { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
+    { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
+    { lat: 38.8512, lng: -77.0402 }, // Ronald Reagan Washington National Airport (DCA)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
