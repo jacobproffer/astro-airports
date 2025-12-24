@@ -1,13 +1,13 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import ContentLeft from "@components/ContentLeft.astro";
-import ContentRight from "@components/ContentRight.astro";
+import Map from "@components/Map.astro";
 const pageTitle = "Airports I've Been To";
 ---
 
 <BaseLayout pageTitle={pageTitle}>
   <div class="grid grid-cols-1 md:grid-cols-2">
     <ContentLeft />
-    <ContentRight />
+    <Map />
   </div>
 </BaseLayout>
