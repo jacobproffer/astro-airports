@@ -1,9 +1,13 @@
 ---
 import LogoGraphic from "@images/logo.svg";
 import Buttons from "@components/Buttons.astro";
+import Stat from "@components/Stat.astro";
+import { calculateTripStats } from "@data/trips";
+
+const stats = calculateTripStats();
 ---
 
-<div
+<section
   class="order-2 border-yellow max-md:border-t md:self-auto md:order-1 md:border-r"
 >
   <div
@@ -16,7 +20,26 @@ import Buttons from "@components/Buttons.astro";
     >
       <LogoGraphic class="w-full h-full" />
     </a>
-    <h1 class="text-white text-4xl">Airports I've Been To</h1>
+    <h1 class="text-white text-4xl uppercase">Airports I've Been To</h1>
+
+    <div class="flex flex-col gap-4 text-yellow">
+      <ul class="flex justify-center gap-8 text-sm md:text-base">
+        <li>
+          <Stat value={stats.totalAirports} label="Airports" />
+        </li>
+        <li>
+          <Stat value={stats.totalTrips} label="Trips" />
+        </li>
+        <li>
+          <Stat value={stats.totalFlights} label="Flights" />
+        </li>
+      </ul>
+      <div class="text-sm text-gray-400">
+        <span class="text-yellow font-semibold">{stats.mostVisitedAirport}</span
+        > most visited ({stats.yearSpan})
+      </div>
+    </div>
+
     <Buttons />
   </div>
-</div>
+</section>
