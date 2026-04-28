@@ -30,6 +30,12 @@ const airportsData: Airport[] = [
   [42.9476, -87.8966, "<h2>General Mitchell International Airport</h2>", "MKE"],
   [46.3497, -87.3873, "<h2>Sawyer International Airport</h2>", "MQT"],
   [
+    38.1741,
+    -85.7363,
+    "<h2>Louisville Muhammad Ali International Airport</h2>",
+    "SDF",
+  ],
+  [
     44.8848,
     -93.2223,
     "<h2>Minneapolis–Saint Paul International Airport</h2>",
