@@ -4,6 +4,13 @@ export interface TripCoordinate {
 }
 
 export const trips = {
+  ohioTrip2026: [
+    { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
+    { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
+    { lat: 38.1741, lng: -85.7363 }, // Kentucky Airport (SDF)
+    { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
+    { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
+  ],
   japanTrip2025: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
@@ -183,7 +190,7 @@ export function calculateTripStats(): TripStats {
 
   // Count unique airports
   const uniqueAirports = new Set(
-    allCoordinates.map((coord) => `${coord.lat},${coord.lng}`)
+    allCoordinates.map((coord) => `${coord.lat},${coord.lng}`),
   );
 
   // Count total flights (each coordinate in a trip represents a flight segment)
