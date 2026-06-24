@@ -22,8 +22,8 @@ export default defineConfig({
       // Improve build performance
       rollupOptions: {
         output: {
-          manualChunks: {
-            vendor: ['astro'],
+          manualChunks: (id) => {
+            if (id.includes('astro')) return 'vendor';
           },
         },
       },
