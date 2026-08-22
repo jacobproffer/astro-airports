@@ -9,7 +9,7 @@ const airportsData: Airport[] = [
     32.8998,
     -97.0403,
     "<h2>Dallas/Forth Worth International Airport</h2>",
-    "DFT",
+    "DFW",
   ],
   [42.2162, -83.3554, "<h2>Detroit Metropolitan Airport</h2>", "DTW"],
   [45.7202, -87.092, "<h2>Delta County Airport</h2>", "ESC"],

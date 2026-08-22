@@ -1,9 +1,20 @@
 export interface TripCoordinate {
   lat: number;
   lng: number;
+  isFlight?: boolean;
 }
 
-export const trips = {
+export const trips: Record<string, TripCoordinate[]> = {
+  // 4 flights
+  japanTrip2026: [
+    { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
+    { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
+    { lat: 35.5494, lng: 139.7798 }, // Haneda Airport (HND)
+    { lat: 35.772, lng: 140.3929, isFlight: false }, // Narita International Airport (NRT), reached by ground transfer
+    { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
+    { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
+  ],
+  // 4 flights
   ohioTrip2026: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
@@ -11,6 +22,7 @@ export const trips = {
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
+  // 6 flights
   japanTrip2025: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
@@ -20,7 +32,7 @@ export const trips = {
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 4 flights
   japanTrip2024: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
@@ -28,7 +40,7 @@ export const trips = {
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 4 flights
   icelandTrip2024: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 42.2162, lng: -83.3554 }, // Detroit Metropolitan Airport (DTW)
@@ -36,7 +48,7 @@ export const trips = {
     { lat: 42.2162, lng: -83.3554 }, // Detroit Metropolitan Airport (DTW)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 4 flights
   arizonaTrip2023: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
@@ -44,7 +56,7 @@ export const trips = {
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 4 flights
   japanTrip2023: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
@@ -52,7 +64,7 @@ export const trips = {
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 4 flights
   washingtonTrip2023: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
@@ -60,7 +72,7 @@ export const trips = {
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 4 flights
   japanTrip2022: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
@@ -68,7 +80,7 @@ export const trips = {
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 6 flights
   japanTrip2019: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
@@ -78,7 +90,7 @@ export const trips = {
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 8 Flights
   romaniaTrip2019: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 42.2162, lng: -83.3554 }, // Detroit Metropolitan Airport (DTW)
@@ -90,7 +102,7 @@ export const trips = {
     { lat: 42.2162, lng: -83.3554 }, // Detroit Metropolitan Airport (DTW)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 6 flights
   norwayTrip2018: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 42.2162, lng: -83.3554 }, // Detroit Metropolitan Airport (DTW)
@@ -100,7 +112,7 @@ export const trips = {
     { lat: 44.8848, lng: -93.2223 }, // Minneapolis–Saint Paul International Airport
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 6 flights
   icelandTrip2018: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 42.2162, lng: -83.3554 }, // Detroit Metropolitan Airport (DTW)
@@ -110,7 +122,7 @@ export const trips = {
     { lat: 44.8848, lng: -93.2223 }, // Minneapolis–Saint Paul International Airport
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 4 flights
   japanTrip2017: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
@@ -118,15 +130,15 @@ export const trips = {
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 4 flights
   texasTrip2017: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 42.2162, lng: -83.3554 }, // Detroit Metropolitan Airport (DTW)
-    { lat: 32.8998, lng: -97.0403 }, // Dallas Fort Worth (DFT)
+    { lat: 32.8998, lng: -97.0403 }, // Dallas Fort Worth (DFW)
     { lat: 42.2162, lng: -83.3554 }, // Detroit Metropolitan Airport (DTW)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 4 flights
   newYorkTrip2017: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
@@ -134,13 +146,13 @@ export const trips = {
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 2 flights
   bostonTrip2016: [
     { lat: 42.9476, lng: -87.8966 }, // General Mitchell International Airport
     { lat: 42.3656, lng: -71.0096 }, // Logan International Airport (BOS)
     { lat: 42.9476, lng: -87.8966 }, // General Mitchell International Airport
   ],
-
+  // 4 flights
   newYorkTrip2014: [
     { lat: 44.4834, lng: -88.1344 }, // Austin Straubel International Airport (GRB)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
@@ -148,7 +160,7 @@ export const trips = {
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 44.4834, lng: -88.1344 }, // Austin Straubel International Airport (GRB)
   ],
-
+  // 4 flights
   hersheyTrip2014: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 42.2162, lng: -83.3554 }, // Detroit Metropolitan Airport (DTW)
@@ -156,7 +168,7 @@ export const trips = {
     { lat: 42.2162, lng: -83.3554 }, // Detroit Metropolitan Airport (DTW)
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
   ],
-
+  // 4 flights
   newYorkTrip2012: [
     { lat: 44.4834, lng: -88.1344 }, // Austin Straubel International Airport (GRB)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
@@ -164,13 +176,13 @@ export const trips = {
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 44.4834, lng: -88.1344 }, // Austin Straubel International Airport (GRB)
   ],
-
+  // 6 flights
   texasTrip2003: [
     { lat: 46.3497, lng: -87.3873 }, // K.I. Sawyer Airport (MQT)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
-    { lat: 32.8998, lng: -97.0403 }, // Dallas Fort Worth (DFT)
+    { lat: 32.8998, lng: -97.0403 }, // Dallas Fort Worth (DFW)
     { lat: 32.4119, lng: -99.68 }, // Abilene Regional Airport
-    { lat: 32.8998, lng: -97.0403 }, // Dallas Fort Worth (DFT)
+    { lat: 32.8998, lng: -97.0403 }, // Dallas Fort Worth (DFW)
     { lat: 41.9742, lng: -87.9073 }, // Chicago O'Hare Airport (ORD)
     { lat: 45.7202, lng: -87.092 }, // Delta County Airport (ESC)
   ],
@@ -193,8 +205,16 @@ export function calculateTripStats(): TripStats {
     allCoordinates.map((coord) => `${coord.lat},${coord.lng}`),
   );
 
-  // Count total flights (each coordinate in a trip represents a flight segment)
-  const totalFlights = allCoordinates.length;
+  // Count each arrival after the starting airport, excluding ground transfers.
+  const totalFlights = Object.entries(trips).reduce(
+    (total, [, coordinates]) => {
+      const flightLegs = coordinates
+        .slice(1)
+        .filter((coordinate) => coordinate.isFlight !== false);
+      return total + flightLegs.length;
+    },
+    0,
+  );
 
   // Find most visited airport
   const airportCounts = new Map<string, number>();
