@@ -9,13 +9,16 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
 <script
   async
   defer
-  src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&loading=async&callback=initMap`}
+  src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&loading=async&libraries=marker&callback=initMap`}
 ></script>
 
 <script>
-  import { airports, mapCenter, mapStyles } from "../data/airports";
+  import { airports, mapCenter } from "../data/airports";
   import { trips as tripData } from "../data/trips";
 
+  // Advanced markers require a Map ID; DEMO_MAP_ID works but ignores custom styling
+  const MAP_ID =
+    import.meta.env.PUBLIC_GOOGLE_MAPS_MAP_ID || "DEMO_MAP_ID";
   const ICON_URL = "/images/marker.svg";
 
   interface MarkerOptions {
@@ -34,7 +37,15 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
     remove(): boolean;
   }
 
-  function initializeMap(): void {
+  let initialized = false;
+
+  async function initializeMap(): Promise<void> {
+    if (initialized) return;
+    initialized = true;
+
+    await google.maps.importLibrary("maps");
+    await google.maps.importLibrary("marker");
+
     const mapElement = document.getElementById("map");
     if (!mapElement) {
       console.error("Map element not found");
@@ -44,12 +55,12 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
     const map = new google.maps.Map(mapElement, {
       zoom: 3,
       center: mapCenter,
-      styles: mapStyles,
+      mapId: MAP_ID,
     });
 
     const markerBounds = new google.maps.LatLngBounds();
     const infoWindow = new google.maps.InfoWindow();
-    const markerCollection: google.maps.Marker[] = [];
+    const markerCollection: google.maps.marker.AdvancedMarkerElement[] = [];
 
     // Close info windows when clicking outside the map or sidebar
     document.addEventListener("click", (event) => {
@@ -75,7 +86,7 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
       div: HTMLElement | null = null;
 
       constructor(
-        marker: google.maps.Marker,
+        onSelect: () => void,
         opts: {
           sidebarItem?: string;
           sidebarItemType?: string;
@@ -92,10 +103,7 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
         button.className =
           opts.sidebarItemClassName ||
           "py-2 px-3 bg-black border border-yellow cursor-pointer transition-colors duration-200 sidebar-item w-full text-left text-white hover:bg-yellow hover:text-black focus:outline-dashed focus:outline-2 focus:outline-offset-2 focus:outline-yellow";
-        button.onclick = () => google.maps.event.trigger(marker, "click");
-        button.onmouseover = () =>
-          google.maps.event.trigger(marker, "mouseover");
-        button.onmouseout = () => google.maps.event.trigger(marker, "mouseout");
+        button.onclick = onSelect;
 
         // Append button to list item
         this.listItem.appendChild(button);
@@ -122,32 +130,36 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
     }
 
     // Create markers for each airport
-    function createMarker(options: MarkerOptions): google.maps.Marker {
-      const marker = new google.maps.Marker({
+    function createMarker(
+      options: MarkerOptions
+    ): google.maps.marker.AdvancedMarkerElement {
+      const icon = document.createElement("img");
+      icon.src = ICON_URL;
+      icon.width = 30;
+      icon.height = 30;
+      icon.alt = "";
+      // Advanced markers anchor at bottom center; the old icon was centered
+      icon.style.transform = "translateY(50%)";
+
+      const marker = new google.maps.marker.AdvancedMarkerElement({
         map,
-        optimized: false,
-        icon: {
-          url: ICON_URL,
-          scaledSize: new google.maps.Size(30, 30),
-          origin: new google.maps.Point(0, 0),
-          anchor: new google.maps.Point(15, 15),
-        },
-        ...options,
+        position: options.position,
+        content: icon,
       });
 
-      google.maps.event.addListener(marker, "click", () => {
+      let sidebarButton: SidebarItemInstance | undefined;
+
+      const select = () => {
         infoWindow.setOptions(options);
         infoWindow.open(map, marker);
-        const sidebarButton = (marker as any)
-          .sidebarButton as SidebarItemInstance;
-        if (sidebarButton) {
-          sidebarButton.button.focus();
-        }
-      });
+        sidebarButton?.button.focus();
+      };
+
+      marker.addEventListener("gmp-click", select);
 
       if (options.sidebarItem) {
-        (marker as any).sidebarButton = new SidebarItem(marker, options);
-        ((marker as any).sidebarButton as SidebarItemInstance).addIn("sidebar");
+        sidebarButton = new SidebarItem(select, options);
+        sidebarButton.addIn("sidebar");
       }
 
       markerBounds.extend(options.position);

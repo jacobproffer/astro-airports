@@ -5,18 +5,20 @@ declare global {
 
   namespace google {
     namespace maps {
+      function importLibrary(name: string): Promise<any>;
       class Map {
         constructor(mapDiv: HTMLElement, opts?: any);
       }
-      class Marker {
-        constructor(opts?: any);
-        setOptions(options: any): void;
-        getIcon(): any;
+      namespace marker {
+        class AdvancedMarkerElement {
+          constructor(opts?: any);
+          addEventListener(eventName: string, handler: Function): void;
+        }
       }
       class InfoWindow {
         constructor(opts?: any);
         setOptions(options: any): void;
-        open(map: Map, anchor?: Marker): void;
+        open(map: Map, anchor?: marker.AdvancedMarkerElement): void;
         close(): void;
       }
       class LatLng {
