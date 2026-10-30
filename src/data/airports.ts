@@ -1,62 +1,61 @@
-export type Airport = [number, number, string, string];
+export interface Airport {
+  code: string;
+  name: string;
+  city: string;
+  /** ISO 3166-1 alpha-2 country code */
+  country: string;
+  lat: number;
+  lng: number;
+}
 
-const airportsData: Airport[] = [
-  [32.4119, -99.68, "<h2>Abilene Regional Airport</h2>", "ABI"],
-  [52.3105, 4.7683, "<h2>Amsterdam Airport Schiphol</h2>", "AMS"],
-  [60.2918, 5.222, "<h2>Bergen Airport, Flesland</h2>", "BGO"],
-  [42.3656, -71.0096, "<h2>Logan International Airport</h2>", "BOS"],
-  [
-    32.8998,
-    -97.0403,
-    "<h2>Dallas/Forth Worth International Airport</h2>",
-    "DFW",
-  ],
-  [42.2162, -83.3554, "<h2>Detroit Metropolitan Airport</h2>", "DTW"],
-  [45.7202, -87.092, "<h2>Delta County Airport</h2>", "ESC"],
-  [44.4834, -88.1344, "<h2>Austin Straubel International Airport</h2>", "GRB"],
-  [40.6413, -73.7781, "<h2>John F. Kennedy International Airport</h2>", "JFK"],
-  [63.987, -22.6192, "<h2>Keflavik International Airport</h2>", "KEF"],
-  [40.7769, -73.874, "<h2>LaGuardia Airport</h2>", "LGA"],
-  [51.47, -0.4543, "<h2>Heathrow Airport</h2>", "LHR"],
-  [
-    44.5713,
-    26.0853,
-    "<h2>Bucharest Henri Coandă International Airport</h2>",
-    "OTP",
-  ],
-  [49.0097, 2.5479, "<h2>Paris Charles de Gaulle Airport</h2>", "CDG"],
-  [40.1942, -76.7577, "<h2>Harrisburg International Airport</h2>", "MDT"],
-  [35.5494, 139.7798, "<h2>Haneda Airport</h2>", "HND"],
-  [42.9476, -87.8966, "<h2>General Mitchell International Airport</h2>", "MKE"],
-  [46.3497, -87.3873, "<h2>Sawyer International Airport</h2>", "MQT"],
-  [
-    38.1741,
-    -85.7363,
-    "<h2>Louisville Muhammad Ali International Airport</h2>",
-    "SDF",
-  ],
-  [
-    44.8848,
-    -93.2223,
-    "<h2>Minneapolis–Saint Paul International Airport</h2>",
-    "MSP",
-  ],
-  [35.772, 140.3929, "<h2>Narita International Airport</h2>", "NRT"],
-  [42.7752, 141.6923, "<h2>New Chitose Airport</h2>", "CTS"],
-  [41.9742, -87.9073, "<h2>OHare International Airport</h2>", "ORD"],
-  [34.7863, 135.4378, "<h2>Osaka International Airport</h2>", "ITM"],
-  [
-    38.8512,
-    -77.0402,
-    "<h2>Ronald Reagan Washington National Airport</h2>",
-    "DCA",
-  ],
-  [32.1161, -110.941, "<h2>Tucson International Airport</h2>", "TUS"],
-];
+const airportsData = {
+  ABI: { name: "Abilene Regional Airport", city: "Abilene, TX", country: "US", lat: 32.4119, lng: -99.68 },
+  AMS: { name: "Amsterdam Airport Schiphol", city: "Amsterdam", country: "NL", lat: 52.3105, lng: 4.7683 },
+  BGO: { name: "Bergen Airport, Flesland", city: "Bergen", country: "NO", lat: 60.2918, lng: 5.222 },
+  BOS: { name: "Logan International Airport", city: "Boston, MA", country: "US", lat: 42.3656, lng: -71.0096 },
+  CDG: { name: "Paris Charles de Gaulle Airport", city: "Paris", country: "FR", lat: 49.0097, lng: 2.5479 },
+  CTS: { name: "New Chitose Airport", city: "Sapporo", country: "JP", lat: 42.7752, lng: 141.6923 },
+  DCA: { name: "Ronald Reagan Washington National Airport", city: "Washington, D.C.", country: "US", lat: 38.8512, lng: -77.0402 },
+  DFW: { name: "Dallas/Fort Worth International Airport", city: "Dallas, TX", country: "US", lat: 32.8998, lng: -97.0403 },
+  DTW: { name: "Detroit Metropolitan Airport", city: "Detroit, MI", country: "US", lat: 42.2162, lng: -83.3554 },
+  ESC: { name: "Delta County Airport", city: "Escanaba, MI", country: "US", lat: 45.7202, lng: -87.092 },
+  GRB: { name: "Austin Straubel International Airport", city: "Green Bay, WI", country: "US", lat: 44.4834, lng: -88.1344 },
+  HND: { name: "Haneda Airport", city: "Tokyo", country: "JP", lat: 35.5494, lng: 139.7798 },
+  ITM: { name: "Osaka International Airport", city: "Osaka", country: "JP", lat: 34.7863, lng: 135.4378 },
+  JFK: { name: "John F. Kennedy International Airport", city: "New York, NY", country: "US", lat: 40.6413, lng: -73.7781 },
+  KEF: { name: "Keflavík International Airport", city: "Keflavík", country: "IS", lat: 63.987, lng: -22.6192 },
+  LGA: { name: "LaGuardia Airport", city: "New York, NY", country: "US", lat: 40.7769, lng: -73.874 },
+  LHR: { name: "Heathrow Airport", city: "London", country: "GB", lat: 51.47, lng: -0.4543 },
+  MDT: { name: "Harrisburg International Airport", city: "Harrisburg, PA", country: "US", lat: 40.1942, lng: -76.7577 },
+  MKE: { name: "General Mitchell International Airport", city: "Milwaukee, WI", country: "US", lat: 42.9476, lng: -87.8966 },
+  MQT: { name: "Sawyer International Airport", city: "Marquette, MI", country: "US", lat: 46.3497, lng: -87.3873 },
+  MSP: { name: "Minneapolis–Saint Paul International Airport", city: "Minneapolis, MN", country: "US", lat: 44.8848, lng: -93.2223 },
+  NRT: { name: "Narita International Airport", city: "Tokyo", country: "JP", lat: 35.772, lng: 140.3929 },
+  ORD: { name: "O'Hare International Airport", city: "Chicago, IL", country: "US", lat: 41.9742, lng: -87.9073 },
+  OTP: { name: "Bucharest Henri Coandă International Airport", city: "Bucharest", country: "RO", lat: 44.5713, lng: 26.0853 },
+  SDF: { name: "Louisville Muhammad Ali International Airport", city: "Louisville, KY", country: "US", lat: 38.1741, lng: -85.7363 },
+  TUS: { name: "Tucson International Airport", city: "Tucson, AZ", country: "US", lat: 32.1161, lng: -110.941 },
+} satisfies Record<string, Omit<Airport, "code">>;
 
-export const airports = airportsData.sort((a, b) => a[3].localeCompare(b[3]));
+export type AirportCode = keyof typeof airportsData;
 
-export const mapCenter = { lat: 46.3497, lng: -87.3873 };
+export const airportsByCode = Object.fromEntries(
+  Object.entries(airportsData).map(([code, airport]) => [
+    code,
+    { code, ...airport },
+  ]),
+) as Record<AirportCode, Airport>;
+
+export const airports: Airport[] = Object.values(airportsByCode).sort((a, b) =>
+  a.code.localeCompare(b.code),
+);
+
+export const homeAirport: AirportCode = "MQT";
+
+export const mapCenter = {
+  lat: airportsByCode[homeAirport].lat,
+  lng: airportsByCode[homeAirport].lng,
+};
 
 export const mapStyles: google.maps.MapTypeStyle[] = [
   { stylers: [{ visibility: "off" }] },

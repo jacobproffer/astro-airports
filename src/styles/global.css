@@ -4,4 +4,13 @@
   --color-black: #2d2d2d;
   --color-gray: #677279;
   --color-yellow: #ffcd05;
+
+  --animate-fade-in: fade-in 200ms ease-out;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
 }
