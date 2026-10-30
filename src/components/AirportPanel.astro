@@ -1,0 +1,205 @@
+---
+import Stat from "@components/Stat.astro";
+import { airports, type AirportCode } from "@data/airports";
+import { tripLabel, type Trip } from "@data/trips";
+import { getAirportStats } from "@data/stats";
+
+const countryNames = new Intl.DisplayNames(["en"], { type: "region" });
+const flag = (country: string) =>
+  String.fromCodePoint(
+    ...[...country].map((letter) => 0x1f1a5 + letter.charCodeAt(0)),
+  );
+const formatMiles = (miles: number) =>
+  Math.round(miles).toLocaleString("en-US");
+const yearRange = (first: number, last: number) =>
+  first === last ? `${first}` : `${first}–${last}`;
+
+// "Japan ×7" for repeat destinations, "Romania 2019" for one-offs
+function groupTrips(trips: Trip[]): string[] {
+  const groups = new Map<string, Trip[]>();
+  trips.forEach((trip) =>
+    groups.set(trip.name, [...(groups.get(trip.name) ?? []), trip]),
+  );
+  return [...groups.values()]
+    .sort((a, b) => b.length - a.length)
+    .map((group) =>
+      group.length === 1
+        ? tripLabel(group[0])
+        : `${group[0].name} ×${group.length}`,
+    );
+}
+
+const details = airports.map((airport) => {
+  const airportStats = getAirportStats(airport.code as AirportCode);
+  return {
+    airport,
+    stats: airportStats,
+    isHome: airportStats.milesFromHome === 0,
+    maxConnections: Math.max(
+      ...airportStats.connections.map((connection) => connection.count),
+    ),
+    tripGroups: groupTrips(airportStats.trips),
+  };
+});
+
+const linkClass =
+  "text-white underline decoration-gray underline-offset-4 cursor-pointer hover:text-yellow hover:decoration-yellow focus:outline-dashed focus:outline-2 focus:outline-offset-2 focus:outline-yellow";
+---
+
+<!-- display: contents so hidden cards add no gap to the column -->
+<div class="contents text-yellow" id="airport-panel">
+  {
+    details.map(({ airport, stats: airportStats, isHome, maxConnections, tripGroups }) => (
+      <article
+        class="flex flex-col gap-5 p-5 border border-yellow text-left outline-none motion-safe:animate-fade-in"
+        data-airport-panel={airport.code}
+        aria-labelledby={`airport-${airport.code}-name`}
+        tabindex="-1"
+        hidden
+      >
+        <header class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="text-white text-xl" id={`airport-${airport.code}-name`}>
+              <span class="text-yellow">{airport.code}</span> {airport.name}
+            </h2>
+            <p class="flex flex-wrap items-center gap-x-2 text-sm text-gray-300">
+              <span>
+                <span aria-hidden="true">{flag(airport.country)}</span>{" "}
+                {airport.city}, {countryNames.of(airport.country)}
+              </span>
+              {isHome && (
+                <span class="px-1.5 border border-yellow text-yellow text-xs">
+                  HOME
+                </span>
+              )}
+            </p>
+          </div>
+          <button
+            type="button"
+            class="shrink-0 -mt-1 -mr-1 px-2 text-2xl leading-none text-gray-300 cursor-pointer hover:text-yellow focus:outline-dashed focus:outline-2 focus:outline-yellow"
+            aria-label="Close airport details"
+            data-airport-select=""
+          >
+            ×
+          </button>
+        </header>
+
+        <ul class="flex gap-8 text-sm md:text-base">
+          <li>
+            <Stat
+              value={airportStats.visits}
+              label={airportStats.visits === 1 ? "Visit" : "Visits"}
+            />
+          </li>
+          <li>
+            <Stat
+              value={airportStats.trips.length}
+              label={airportStats.trips.length === 1 ? "Trip" : "Trips"}
+            />
+          </li>
+          <li>
+            <Stat
+              value={formatMiles(airportStats.milesFromHome)}
+              label="Mi from home"
+            />
+          </li>
+        </ul>
+
+        <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 gap-y-3 text-sm">
+          <dt class="text-gray-400">Years</dt>
+          <dd class="text-white">
+            {yearRange(airportStats.firstYear, airportStats.lastYear)}
+            {!isHome && airportStats.tripsStarted > 0 && (
+              <span class="text-gray-400">
+                {" "}
+                · started {airportStats.tripsStarted}{" "}
+                {airportStats.tripsStarted === 1 ? "trip" : "trips"} here
+              </span>
+            )}
+          </dd>
+
+          {airportStats.connections.length > 0 && (
+            <>
+              <dt class="text-gray-400">Routes</dt>
+              <dd>
+                <ul
+                  class:list={[
+                    "gap-x-6 *:mb-1.5 *:break-inside-avoid",
+                    airportStats.connections.length > 4 && "sm:columns-2",
+                  ]}
+                >
+                  {airportStats.connections.map((connection) => (
+                    <li class="grid grid-cols-[3rem_minmax(0,1fr)_2rem] items-center gap-3">
+                      <button
+                        type="button"
+                        class={`${linkClass} justify-self-start`}
+                        data-airport-select={connection.code}
+                      >
+                        {connection.code}
+                      </button>
+                      <span
+                        class="block h-1.5 bg-yellow"
+                        style={`width: ${(connection.count / maxConnections) * 100}%`}
+                        aria-hidden="true"
+                      />
+                      <span class="text-right text-gray-400">
+                        <span class="sr-only">flown </span>
+                        {connection.count}
+                        <span class="sr-only">
+                          {connection.count === 1 ? " time" : " times"}
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </dd>
+            </>
+          )}
+
+          <dt class="text-gray-400">Trips</dt>
+          <dd>
+            <ul class="flex flex-wrap gap-1.5">
+              {tripGroups.map((group) => (
+                <li class="px-1.5 border border-gray text-white">{group}</li>
+              ))}
+            </ul>
+          </dd>
+        </dl>
+      </article>
+    ))
+  }
+</div>
+
+<script>
+  import { onAirportSelect } from "../scripts/selection";
+
+  let previous: string | null = null;
+
+  onAirportSelect((code) => {
+    // Only move focus when the change came from the sidebar or this panel,
+    // so picking a marker on the map leaves focus (and scroll) on the map
+    const active = document.activeElement;
+    const fromControls =
+      active instanceof Element &&
+      active.closest("#sidebar, #airport-panel") !== null;
+
+    document
+      .querySelectorAll<HTMLElement>("[data-airport-panel]")
+      .forEach((panel) => {
+        panel.hidden = panel.dataset.airportPanel !== (code ?? "");
+      });
+
+    if (fromControls) {
+      // Opening focuses the card so Tab reaches its controls next; closing
+      // returns focus to the button for the airport that was open
+      const target = code
+        ? document.querySelector<HTMLElement>(`[data-airport-panel="${code}"]`)
+        : document.querySelector<HTMLElement>(
+            `#sidebar [data-airport-select="${previous}"]`,
+          );
+      target?.focus();
+    }
+
+    previous = code;
+  });
+</script>

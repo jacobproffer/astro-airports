@@ -4,7 +4,19 @@ import type {} from "../types/google-maps";
 const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
 ---
 
-<section class="order-1 w-full h-96 md:h-screen" id="map"></section>
+<!-- Google Maps sets its own inline position on #map, so the wrapper sticks -->
+<section class="order-1 w-full h-96 md:h-screen md:sticky md:top-0">
+  <div class="w-full h-full" id="map"></div>
+</section>
+
+<!-- The Maps callback can fire before the bundled script below has run, so
+     record readiness inline and let the bundled script pick it up either way -->
+<script is:inline>
+  window.initMap = () => {
+    window.mapsReady = true;
+    window.dispatchEvent(new Event("maps-ready"));
+  };
+</script>
 
 <script
   async
@@ -13,29 +25,24 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
 ></script>
 
 <script>
-  import { airports, mapCenter } from "../data/airports";
-  import { trips as tripData } from "../data/trips";
+  import { airports, airportsByCode, mapCenter } from "../data/airports";
+  import { routeSegments } from "../data/stats";
+  import {
+    getSelectedAirport,
+    onAirportSelect,
+    selectAirport,
+  } from "../scripts/selection";
 
   // Advanced markers require a Map ID; DEMO_MAP_ID works but ignores custom styling
   const MAP_ID =
     import.meta.env.PUBLIC_GOOGLE_MAPS_MAP_ID || "DEMO_MAP_ID";
   const ICON_URL = "/images/marker.svg";
 
-  interface MarkerOptions {
-    position: google.maps.LatLng;
-    sidebarItem?: string;
-    content?: string;
-    sidebarItemType?: string;
-    sidebarItemClassName?: string;
-  }
+  const ROUTE_COLOR = "#677279";
+  const HIGHLIGHT_COLOR = "#ffcd05";
 
-  interface SidebarItemInstance {
-    button: HTMLElement;
-    listItem: HTMLElement;
-    div: HTMLElement | null;
-    addIn(block: string | HTMLElement): void;
-    remove(): boolean;
-  }
+  // Matches the old look of one faint line per trip stacking up on busy routes
+  const routeOpacity = (count: number) => 1 - 0.8 ** count;
 
   let initialized = false;
 
@@ -58,81 +65,19 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
       mapId: MAP_ID,
     });
 
-    const markerBounds = new google.maps.LatLngBounds();
     const infoWindow = new google.maps.InfoWindow();
-    const markerCollection: google.maps.marker.AdvancedMarkerElement[] = [];
+    const markers = new Map<
+      string,
+      { marker: google.maps.marker.AdvancedMarkerElement; icon: HTMLElement }
+    >();
 
-    // Close info windows when clicking outside the map or sidebar
-    document.addEventListener("click", (event) => {
-      if (
-        event.target &&
-        event.target instanceof Element &&
-        !event.target.closest("#map") &&
-        !event.target.closest(".sidebar-item")
-      ) {
-        infoWindow.close();
-      }
-    });
+    google.maps.event.addListener(map, "click", () => selectAirport(null));
+    google.maps.event.addListener(infoWindow, "closeclick", () =>
+      selectAirport(null),
+    );
 
-    // Close info window when clicking on the map
-    google.maps.event.addListener(map, "click", () => {
-      infoWindow.close();
-    });
-
-    // Create sidebar items for markers
-    class SidebarItem implements SidebarItemInstance {
-      button: HTMLElement;
-      listItem: HTMLElement;
-      div: HTMLElement | null = null;
-
-      constructor(
-        onSelect: () => void,
-        opts: {
-          sidebarItem?: string;
-          sidebarItemType?: string;
-          sidebarItemClassName?: string;
-        }
-      ) {
-        // Create list item wrapper
-        this.listItem = document.createElement("li");
-
-        // Create button element
-        const tag = opts.sidebarItemType || "button";
-        const button = document.createElement(tag);
-        button.innerHTML = opts.sidebarItem || "";
-        button.className =
-          opts.sidebarItemClassName ||
-          "py-2 px-3 bg-black border border-yellow cursor-pointer transition-colors duration-200 sidebar-item w-full text-left text-white hover:bg-yellow hover:text-black focus:outline-dashed focus:outline-2 focus:outline-offset-2 focus:outline-yellow";
-        button.onclick = onSelect;
-
-        // Append button to list item
-        this.listItem.appendChild(button);
-        this.button = button;
-      }
-
-      addIn(block: string | HTMLElement): void {
-        if (block && typeof block !== "string" && block.nodeType === 1) {
-          this.div = block as HTMLElement;
-        } else {
-          this.div =
-            document.getElementById(block as string) ||
-            document.getElementById("sidebar") ||
-            document.getElementsByTagName("body")[0];
-        }
-        this.div.appendChild(this.listItem);
-      }
-
-      remove(): boolean {
-        if (!this.div) return false;
-        this.div.removeChild(this.listItem);
-        return true;
-      }
-    }
-
-    // Create markers for each airport
-    function createMarker(
-      options: MarkerOptions
-    ): google.maps.marker.AdvancedMarkerElement {
+    // Add all airport markers
+    airports.forEach((airport) => {
       const icon = document.createElement("img");
       icon.src = ICON_URL;
       icon.width = 30;
@@ -140,74 +85,79 @@ const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_API_KEY;
       icon.alt = "";
       // Advanced markers anchor at bottom center; the old icon was centered
       icon.style.transform = "translateY(50%)";
+      icon.style.transition = "transform 150ms";
 
       const marker = new google.maps.marker.AdvancedMarkerElement({
         map,
-        position: options.position,
+        position: { lat: airport.lat, lng: airport.lng },
         content: icon,
+        title: `${airport.code}, ${airport.name}`,
       });
+      marker.addEventListener("gmp-click", () => selectAirport(airport.code));
 
-      let sidebarButton: SidebarItemInstance | undefined;
-
-      const select = () => {
-        infoWindow.setOptions(options);
-        infoWindow.open(map, marker);
-        sidebarButton?.button.focus();
-      };
-
-      marker.addEventListener("gmp-click", select);
-
-      if (options.sidebarItem) {
-        sidebarButton = new SidebarItem(select, options);
-        sidebarButton.addIn("sidebar");
-      }
-
-      markerBounds.extend(options.position);
-      markerCollection.push(marker);
-      return marker;
-    }
-
-    // Add all airport markers
-    airports.forEach(([lat, lng, content, code]) => {
-      createMarker({
-        position: new google.maps.LatLng(lat, lng),
-        sidebarItem: code,
-        content,
-      });
+      markers.set(airport.code, { marker, icon });
     });
 
-    // Draw trip routes
-    function drawTripLine(coordinates: { lat: number; lng: number }[]): void {
-      const path = coordinates.map(
-        (coord) => new google.maps.LatLng(coord.lat, coord.lng)
-      );
-      new google.maps.Polyline({
-        path,
-        strokeColor: "#677279",
-        strokeOpacity: 0.2,
+    // Draw one line per airport pair, however many trips used it
+    const routes = routeSegments.map((segment) => ({
+      segment,
+      line: new google.maps.Polyline({
+        path: [segment.from, segment.to].map((code) => ({
+          lat: airportsByCode[code].lat,
+          lng: airportsByCode[code].lng,
+        })),
+        strokeColor: ROUTE_COLOR,
+        strokeOpacity: routeOpacity(segment.count),
         strokeWeight: 3,
         geodesic: true,
+        clickable: false,
         map,
+      }),
+    }));
+
+    function showSelection(code: string | null): void {
+      routes.forEach(({ segment, line }) => {
+        const touches = segment.from === code || segment.to === code;
+        line.setOptions(
+          code === null
+            ? {
+                strokeColor: ROUTE_COLOR,
+                strokeOpacity: routeOpacity(segment.count),
+                zIndex: 0,
+              }
+            : touches
+              ? { strokeColor: HIGHLIGHT_COLOR, strokeOpacity: 0.9, zIndex: 1 }
+              : { strokeColor: ROUTE_COLOR, strokeOpacity: 0.08, zIndex: 0 },
+        );
       });
+
+      markers.forEach(({ icon }, markerCode) => {
+        icon.style.transform =
+          markerCode === code ? "translateY(50%) scale(1.4)" : "translateY(50%)";
+      });
+
+      const selected = code === null ? undefined : markers.get(code);
+      if (!code || !selected) {
+        infoWindow.close();
+        return;
+      }
+
+      const airport = airportsByCode[code as keyof typeof airportsByCode];
+      const content = document.createElement("strong");
+      content.textContent = `${airport.code} · ${airport.name}`;
+      infoWindow.setContent(content);
+      // Keep focus where the user is; the info window grabs it by default
+      infoWindow.open({ map, anchor: selected.marker, shouldFocus: false });
+      map.panTo({ lat: airport.lat, lng: airport.lng });
     }
 
-    // Draw all trip routes
-    Object.values(tripData).forEach((trip) => {
-      drawTripLine(trip);
-    });
+    onAirportSelect(showSelection);
+    showSelection(getSelectedAirport());
   }
 
-  // Make initMap globally available for Google Maps callback
-  window.initMap = initializeMap;
-
-  // Also ensure it runs when DOM is loaded if Google Maps is already available
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
-      if (typeof (window as any).google !== "undefined") {
-        initializeMap();
-      }
-    });
-  } else if (typeof (window as any).google !== "undefined") {
+  if (window.mapsReady) {
     initializeMap();
+  } else {
+    window.addEventListener("maps-ready", initializeMap, { once: true });
   }
 </script>
