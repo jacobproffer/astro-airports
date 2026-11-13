@@ -1,6 +1,6 @@
 ---
 import { SEO, type Props as SEOProps } from "astro-seo";
-const defaultImageFile = new URL("/images/airports-social.jpg", Astro.url);
+const defaultImageFile = new URL("/images/airports-og.jpg", Astro.url);
 
 interface Props {
   seo?: SEOProps;
@@ -27,10 +27,16 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     image: {
       url: defaultImageFile.toString(),
       secureUrl: defaultImageFile.toString(),
-      alt: "",
-      height: 1200,
-      width: 800,
+      alt: "Route map of every airport Jacob Proffer has flown through, with the title Airports I've Been To",
+      height: 630,
+      width: 1200,
     },
+  }}
+  twitter={{
+    card: "summary_large_image",
+    image: defaultImageFile.toString(),
+    imageAlt:
+      "Route map of every airport Jacob Proffer has flown through, with the title Airports I've Been To",
   }}
   extend={{
     meta: [
